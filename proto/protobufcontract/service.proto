@@ -31,7 +31,7 @@ message Acceptresponse{
   bool accresp = 1;
 }
 message Retryrequest{
-  int64 id = 1;
+  string email = 1;
 }
 message Retryresponse{
   bool retryresp = 1;
