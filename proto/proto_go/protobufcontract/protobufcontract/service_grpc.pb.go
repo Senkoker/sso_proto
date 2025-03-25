@@ -19,11 +19,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Auth_Register_FullMethodName = "/auth.Auth/Register"
-	Auth_Login_FullMethodName    = "/auth.Auth/Login"
-	Auth_Retry_FullMethodName    = "/auth.Auth/Retry"
-	Auth_Accept_FullMethodName   = "/auth.Auth/Accept"
-	Auth_IsAdmin_FullMethodName  = "/auth.Auth/IsAdmin"
+	Auth_Register_FullMethodName       = "/auth.Auth/Register"
+	Auth_Login_FullMethodName          = "/auth.Auth/Login"
+	Auth_Retry_FullMethodName          = "/auth.Auth/Retry"
+	Auth_ChangePassword_FullMethodName = "/auth.Auth/Change_password"
+	Auth_Accept_FullMethodName         = "/auth.Auth/Accept"
+	Auth_IsAdmin_FullMethodName        = "/auth.Auth/IsAdmin"
 )
 
 // AuthClient is the client API for Auth service.
@@ -33,6 +34,7 @@ type AuthClient interface {
 	Register(ctx context.Context, in *Registrequest, opts ...grpc.CallOption) (*Registresponse, error)
 	Login(ctx context.Context, in *Loginrequest, opts ...grpc.CallOption) (*Loginresponse, error)
 	Retry(ctx context.Context, in *Retryrequest, opts ...grpc.CallOption) (*Retryresponse, error)
+	ChangePassword(ctx context.Context, in *PassChangeRequest, opts ...grpc.CallOption) (*PassChangeResponse, error)
 	Accept(ctx context.Context, in *Acceptrequest, opts ...grpc.CallOption) (*Acceptresponse, error)
 	IsAdmin(ctx context.Context, in *IsAdminrequest, opts ...grpc.CallOption) (*IsAdminresponse, error)
 }
@@ -75,6 +77,16 @@ func (c *authClient) Retry(ctx context.Context, in *Retryrequest, opts ...grpc.C
 	return out, nil
 }
 
+func (c *authClient) ChangePassword(ctx context.Context, in *PassChangeRequest, opts ...grpc.CallOption) (*PassChangeResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PassChangeResponse)
+	err := c.cc.Invoke(ctx, Auth_ChangePassword_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *authClient) Accept(ctx context.Context, in *Acceptrequest, opts ...grpc.CallOption) (*Acceptresponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Acceptresponse)
@@ -102,6 +114,7 @@ type AuthServer interface {
 	Register(context.Context, *Registrequest) (*Registresponse, error)
 	Login(context.Context, *Loginrequest) (*Loginresponse, error)
 	Retry(context.Context, *Retryrequest) (*Retryresponse, error)
+	ChangePassword(context.Context, *PassChangeRequest) (*PassChangeResponse, error)
 	Accept(context.Context, *Acceptrequest) (*Acceptresponse, error)
 	IsAdmin(context.Context, *IsAdminrequest) (*IsAdminresponse, error)
 	mustEmbedUnimplementedAuthServer()
@@ -122,6 +135,9 @@ func (UnimplementedAuthServer) Login(context.Context, *Loginrequest) (*Loginresp
 }
 func (UnimplementedAuthServer) Retry(context.Context, *Retryrequest) (*Retryresponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Retry not implemented")
+}
+func (UnimplementedAuthServer) ChangePassword(context.Context, *PassChangeRequest) (*PassChangeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChangePassword not implemented")
 }
 func (UnimplementedAuthServer) Accept(context.Context, *Acceptrequest) (*Acceptresponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Accept not implemented")
@@ -204,6 +220,24 @@ func _Auth_Retry_Handler(srv interface{}, ctx context.Context, dec func(interfac
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Auth_ChangePassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PassChangeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServer).ChangePassword(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Auth_ChangePassword_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServer).ChangePassword(ctx, req.(*PassChangeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Auth_Accept_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Acceptrequest)
 	if err := dec(in); err != nil {
@@ -258,6 +292,10 @@ var Auth_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Retry",
 			Handler:    _Auth_Retry_Handler,
+		},
+		{
+			MethodName: "Change_password",
+			Handler:    _Auth_ChangePassword_Handler,
 		},
 		{
 			MethodName: "Accept",

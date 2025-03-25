@@ -6,9 +6,18 @@ service Auth {
   rpc Register(Registrequest) returns (Registresponse);
   rpc Login(Loginrequest) returns (Loginresponse);
   rpc Retry(Retryrequest) returns (Retryresponse);
+  rpc Change_password(Pass_change_request) returns (Pass_change_response);
   rpc Accept(Acceptrequest) returns (Acceptresponse);
   rpc IsAdmin(IsAdminrequest) returns (IsAdminresponse);
 }
+message Pass_change_request{
+  string email = 1;
+  string new_pass = 2;
+}
+message Pass_change_response{
+  bool resp = 1;
+}
+
 message Registrequest {
   string email = 1;
   string password = 2;
